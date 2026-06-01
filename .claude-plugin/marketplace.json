@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "indesign-extendscript-plugins",
+  "owner": {
+    "name": "mindboard",
+    "email": "tomo.osima@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "indd",
+      "source": "./",
+      "description": "Generate InDesign documents via ExtendScript",
+      "author": { "name": "mindboard" },
+      "category": "productivity",
+      "license": "MIT"
+    }
+  ]
+}

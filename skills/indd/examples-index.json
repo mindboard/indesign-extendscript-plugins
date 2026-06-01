@@ -1,0 +1,257 @@
+[
+  {
+    "title": "Build Multi-Column Document from Markdown and CSV",
+    "description": "End-to-end realistic example: builds an A4-landscape, 3-column document with a spanning title, paragraph styles, an inline anchored image, and a CSV-driven table, then exports INDD/IDML/PDF/PNG. Reads all Japanese (CJK) content from UTF-8 files and references fonts by ASCII PostScript name so the .jsx source stays ASCII-only. Adjust the absolute paths near the top before running.",
+    "filepath": "scripts/20_build-multicolumn-doc-from-md-and-csv.jsx"
+  },
+  {
+    "title": "Detect and Fix Overset Text in a Table",
+    "description": "Detects overset (hidden, non-fitting) text in a table's cells via cell.overflows, then fixes it by widening the overset column(s), borrowing width from the widest column that can safely shrink. Calls doc.recompose() after each change so overflow state is accurate. Demonstrates that an overset cell's .contents returns empty and that unbreakable Latin tokens (filenames/URLs) are the usual cause in CJK-mixed tables.",
+    "filepath": "scripts/21_detect-and-fix-overset-table.jsx"
+  },
+  {
+    "title": "Create Table from Price List JSON",
+    "description": "Creates a formatted price list table by reading data from a JSON file and populating it into an InDesign document",
+    "filepath": "scripts/03_create-table-from-price-list-json.jsx"
+  },
+  {
+    "title": "Create Text Frame with Center Aligned Contents",
+    "description": "Creates a text frame and aligns its contents to the center both horizontally and vertically",
+    "filepath": "scripts/12_create-textframe-align-contents-center.jsx"
+  },
+  {
+    "title": "Export Document as PNG",
+    "description": "Creates a Hello World document and exports it as a PNG file with maximum quality RGB output",
+    "filepath": "scripts/02_export-doc-as-png.jsx"
+  },
+  {
+    "title": "Read All Paragraph Styles",
+    "description": "Reads and lists all paragraph styles defined in the active InDesign document",
+    "filepath": "scripts/09_read-all-paragraph-styles.jsx"
+  },
+  {
+    "title": "Find Layer and Add Layer",
+    "description": "Demonstrates how to find an existing layer by name or create a new layer if it doesn't exist, then assigns page items to that layer",
+    "filepath": "scripts/10_find-layer-and-add-layer.jsx"
+  },
+  {
+    "title": "Read All Font Names in Active Document",
+    "description": "Reads and lists all font names that are actually used in the currently active InDesign document",
+    "filepath": "scripts/00_read-all-font-names-in-active-document.jsx"
+  },
+  {
+    "title": "Merge IDML Files",
+    "description": "Merges multiple IDML files into a single InDesign document by combining their spreads sequentially",
+    "filepath": "scripts/05_merge-idml-files.jsx"
+  },
+  {
+    "title": "Export Document as JPG",
+    "description": "Creates a Hello World document and exports it as a JPG file with maximum quality RGB output",
+    "filepath": "scripts/02_export-doc-as-jpg.jsx"
+  },
+  {
+    "title": "Create Empty InDesign Document",
+    "description": "Creates a new blank InDesign document with default settings",
+    "filepath": "scripts/99_create-empty-document.jsx"
+  },
+  {
+    "title": "List Up IDML Files",
+    "description": "Lists all IDML files in a specified directory for batch processing or inventory purposes",
+    "filepath": "scripts/05_listup-idml-files.jsx"
+  },
+  {
+    "title": "Get All Image Link Names in Active Document",
+    "description": "Gathers and returns the filenames of all linked images present in the active InDesign document",
+    "filepath": "scripts/99_get-all-image-link-names-in-active-document.jsx"
+  },
+  {
+    "title": "Create New Document with Text Frame",
+    "description": "Creates a new InDesign document and adds a text frame with sample content",
+    "filepath": "scripts/01_create-document-with-textframe.jsx"
+  },
+  {
+    "title": "Place PDF File in Document",
+    "description": "Places a PDF file into the active InDesign document at a specified location",
+    "filepath": "scripts/04_place-pdf.jsx"
+  },
+  {
+    "title": "Fractal Ginkgo Leaf",
+    "description": "Generates a fractal pattern resembling a ginkgo leaf using recursive line drawing techniques",
+    "filepath": "scripts/08_fractal-ginkgo-leaf.jsx"
+  },
+  {
+    "title": "Bezier Curves",
+    "description": "Demonstrates how to draw Bezier curves using path points with control handles for smooth curved shapes",
+    "filepath": "scripts/08_beizer.jsx"
+  },
+  {
+    "title": "Console Logging Utility",
+    "description": "Demonstrates console logging functionality with custom console.log implementation and array iteration examples",
+    "filepath": "scripts/00_console-log.jsx"
+  },
+  {
+    "title": "Read All Conditional Text Names",
+    "description": "Reads and lists all conditional text condition names defined in the active document",
+    "filepath": "scripts/14_read-all-conditional-text-names.jsx"
+  },
+  {
+    "title": "Export Document as PDF",
+    "description": "Creates a Hello World document and exports it as a PDF file using PDF/X-1a preset",
+    "filepath": "scripts/02_export-doc-as-pdf.jsx"
+  },
+  {
+    "title": "Read All Character Styles",
+    "description": "Reads and lists all character styles defined in the active InDesign document",
+    "filepath": "scripts/09_read-all-character-styles.jsx"
+  },
+  {
+    "title": "Read All Color Names",
+    "description": "Reads and lists all color names defined in the document's color swatches",
+    "filepath": "scripts/15_read-all-color-names.jsx"
+  },
+  {
+    "title": "Create Document with Multiple Pages",
+    "description": "Creates an InDesign document with multiple pages, demonstrating how to add and manage multiple pages programmatically",
+    "filepath": "scripts/13_create-doc-with-multiple-pages.jsx"
+  },
+  {
+    "title": "Read All Font Names",
+    "description": "Reads and lists all available font names installed in the InDesign application",
+    "filepath": "scripts/00_read-all-font-names.jsx"
+  },
+  {
+    "title": "Save, Read and Parse JSON",
+    "description": "Demonstrates how to save, read, and parse JSON data to/from files using ExtendScript file I/O operations",
+    "filepath": "scripts/06_save-read-parse-json.jsx"
+  },
+  {
+    "title": "Replace Image",
+    "description": "Demonstrates how to replace an existing image in a document with another image file, useful for updating graphics",
+    "filepath": "scripts/07_replace-image.jsx"
+  },
+  {
+    "title": "Get Active Document File Name",
+    "description": "Retrieves and displays the filename of the currently active InDesign document",
+    "filepath": "scripts/00_get-active-document-filename.jsx"
+  },
+  {
+    "title": "Get Selection Information",
+    "description": "Retrieves and displays information about the currently selected objects in the active document",
+    "filepath": "scripts/00_get-selection-information.jsx"
+  },
+  {
+    "title": "Create Rounded Text Frame",
+    "description": "Creates a text frame with rounded corners by applying corner options to all four corners",
+    "filepath": "scripts/12_create-rounded-textframe.jsx"
+  },
+  {
+    "title": "Graphic Line",
+    "description": "Draws a simple graphic line between two points with customizable stroke properties",
+    "filepath": "scripts/08_graphic-line.jsx"
+  },
+  {
+    "title": "Create Custom Color Swatch",
+    "description": "Creates a custom color swatch in the active document's swatches panel",
+    "filepath": "scripts/15_create-swatch.jsx"
+  },
+  {
+    "title": "Traverse Document",
+    "description": "Shows how to traverse through all pages and page items in a document to inspect or manipulate elements programmatically",
+    "filepath": "scripts/07_traverse-document.jsx"
+  },
+  {
+    "title": "Close All Open Documents",
+    "description": "Closes all open InDesign documents without saving changes",
+    "filepath": "scripts/00_close-all-documents.jsx"
+  },
+  {
+    "title": "Export Document as EPS",
+    "description": "Creates a Hello World document and exports it as an EPS file with CMYK color space and embedded fonts",
+    "filepath": "scripts/02_export-doc-as-eps.jsx"
+  },
+  {
+    "title": "Get Current Working Directory",
+    "description": "Returns the current working directory path of the script execution",
+    "filepath": "scripts/00_get-current-dir.jsx"
+  },
+  {
+    "title": "Convert IDML to INDD",
+    "description": "Batch converts IDML files to INDD format by opening each IDML file and saving it as an InDesign document",
+    "filepath": "scripts/05_convert-idml-to-indd.jsx"
+  },
+  {
+    "title": "Insert Image as Inline",
+    "description": "Inserts an image as an inline graphic within a text frame, allowing it to flow with the text",
+    "filepath": "scripts/04_insert-image-as-inline.jsx"
+  },
+  {
+    "title": "Inspect Text Object",
+    "description": "Inspects and displays properties of text objects including point size, leading, fill tint, and font style",
+    "filepath": "scripts/12_inspect-text-object.jsx"
+  },
+  {
+    "title": "Check Link Metadata",
+    "description": "Checks and displays metadata information for linked images and files in the document, including file paths and status",
+    "filepath": "scripts/11_check-link-metadata.jsx"
+  },
+  {
+    "title": "Save, Read and Parse Text",
+    "description": "Demonstrates how to save, read, and parse text/TSV data to/from files with UTF-8 encoding",
+    "filepath": "scripts/06_save-read-parse-text.jsx"
+  },
+  {
+    "title": "Create Table and Find It",
+    "description": "Creates a table in a document and demonstrates how to find and manipulate table elements programmatically",
+    "filepath": "scripts/03_create-table-and-find-it.jsx"
+  },
+  {
+    "title": "Delete All Conditional Texts",
+    "description": "Deletes all conditional text conditions from the active document, removing all condition tags",
+    "filepath": "scripts/14_delete-all-conditional-texts.jsx"
+  },
+  {
+    "title": "Fractal Triangle",
+    "description": "Creates a fractal triangle pattern using recursive geometric subdivision and line drawing",
+    "filepath": "scripts/08_fractal-triangle.jsx"
+  },
+  {
+    "title": "Create Hello World with Paragraph Style",
+    "description": "Creates a Hello World text and applies a custom paragraph style to format the text content",
+    "filepath": "scripts/09_create-hello-world-with-paragraph-style.jsx"
+  },
+  {
+    "title": "Place Image into Rectangle",
+    "description": "Places an image into a rectangle shape with specified dimensions and position",
+    "filepath": "scripts/04_place-image-into-rectangle.jsx"
+  },
+  {
+    "title": "Create Table",
+    "description": "Creates a basic table structure in an InDesign document with specified rows and columns",
+    "filepath": "scripts/03_create-table.jsx"
+  },
+  {
+    "title": "Create Hello World with Paragraph and Character Style",
+    "description": "Creates a 'Hello World' text with custom paragraph and character styles applied",
+    "filepath": "scripts/09_create-hello-world-with-paragraph-and-character-style.jsx"
+  },
+  {
+    "title": "Draw a Polygon",
+    "description": "Creates a polygon shape by defining path points and connecting them to form a closed or open geometric shape",
+    "filepath": "scripts/08_draw-a-polygon.jsx"
+  },
+  {
+    "title": "Insert Inline Text Frame",
+    "description": "Inserts a text frame as an inline element within another text frame, allowing nested text containers",
+    "filepath": "scripts/12_insert-inline-textframe.jsx"
+  },
+  {
+    "title": "Place Image in Center of Page",
+    "description": "Places an image file at the center position of the current page in the active document",
+    "filepath": "scripts/04_place-image-in-center-of-page.jsx"
+  },
+  {
+    "title": "Place Image with Graphic Frame",
+    "description": "Creates a graphic frame and places an image into it for precise positioning and sizing control",
+    "filepath": "scripts/04_place-image-with-graphicframe.jsx"
+  }
+]
