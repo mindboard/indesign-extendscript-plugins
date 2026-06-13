@@ -9,7 +9,7 @@
     {
       "name": "indd",
       "source": "./",
-      "description": "Generate InDesign documents via ExtendScript",
+      "description": "InDesign automation for Claude Code — bundles two skills: 'indd' generates/edits InDesign documents via ExtendScript, and 'idml' unpacks, edits, and repacks IDML files as XML offline (no InDesign required).",
       "author": { "name": "mindboard" },
       "category": "productivity",
       "license": "MIT"

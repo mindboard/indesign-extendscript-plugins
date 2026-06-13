@@ -1,5 +1,5 @@
 {
   "name": "indd",
-  "description": "InDesign ExtendScript skills for Claude Code",
+  "description": "InDesign skills for Claude Code: drive InDesign via ExtendScript (indd) and unpack/repack & edit IDML XML offline (idml)",
   "author": { "name": "mindboard" }
 }
