@@ -100,10 +100,24 @@ inherits formatting (verified: grew a 3-line body to 4 lines this way).
 
 **Swapping a linked image.** Placed images are *referenced*, not embedded. In the
 relevant `Spreads/Spread_*.xml` find the `<Link … LinkResourceURI="file:/abs/old.jpg" …>`
-and change the URI to the new absolute path. InDesign relinks on open (verified). If the
-new image has a different aspect ratio it keeps the old frame, so **re-fit it in
-InDesign** afterward (`frame.fit(FitOptions.FILL_PROPORTIONALLY); frame.fit(FitOptions.CENTER_CONTENT);`)
-via the `indd` skill.
+and change the URI to the new absolute path. InDesign relinks on open (verified). The
+other `<Link>` attributes (`LinkResourceSize`, `LinkImportStamp`, modification times)
+can be left pointing at the old file — InDesign reconciles them on open; you only need to
+change the URI.
+
+**Almost always re-fit after a swap — not just on aspect-ratio change.** The image's
+scale is baked into the parent `<Image>`'s `ItemTransform`, computed from the *old*
+file's pixel size. A replacement with **different pixel dimensions — even at the identical
+aspect ratio — renders at the wrong scale** (e.g. a 2420×1760 photo dropped onto a frame
+sized for a 220×160 one shows only a tiny crop). So after relinking, **re-fit in
+InDesign** via the `indd` skill:
+```javascript
+frame.fit(FitOptions.FILL_PROPORTIONALLY);
+frame.fit(FitOptions.CENTER_CONTENT);
+```
+Matching the aspect ratio just means the re-fit fills cleanly with no awkward crop; it
+does **not** remove the need to re-fit. (Verified: same 1.375 aspect, 11× larger pixels,
+required the re-fit.)
 
 **Applying a paragraph style.** Styles live in `Resources/Styles.xml`
 (`<ParagraphStyle Self="ParagraphStyle/body" …>`); a story applies one via
