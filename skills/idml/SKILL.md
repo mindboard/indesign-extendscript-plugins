@@ -82,6 +82,35 @@ CJK / non-ASCII text is fine: the XML files are UTF-8, so Japanese content
 round-trips unchanged (verified — a `<Story>` containing こんにちは survived
 unpack→edit→pack intact). Save edits as UTF-8 without a BOM.
 
+**Adding a line / paragraph.** A forced line break is a `<Br />` element *between*
+`<Content>` runs inside one `CharacterStyleRange`; a new paragraph is a sibling
+`<ParagraphStyleRange>`. To add a line, insert `<Br /><Content>…</Content>` before the
+closing `</CharacterStyleRange>` — reusing the surrounding style so the new line
+inherits formatting (verified: grew a 3-line body to 4 lines this way).
+
+**Emphasising part of a line (bold/italic run).** Split the run into sibling
+`CharacterStyleRange` elements and give the emphasised one a different `FontStyle`
+(e.g. `FontStyle="Bold"` / `"W6"`), keeping the same `<AppliedFont>`:
+```xml
+<CharacterStyleRange ... FontStyle="W3"><Content>ポンシェは</Content></CharacterStyleRange>
+<CharacterStyleRange ... FontStyle="Bold"><Content>博多「ふくや」の明太子</Content></CharacterStyleRange>
+<CharacterStyleRange ... FontStyle="W3"><Content>を使用。</Content></CharacterStyleRange>
+```
+(Verified: rendered the middle run bold within the same family.)
+
+**Swapping a linked image.** Placed images are *referenced*, not embedded. In the
+relevant `Spreads/Spread_*.xml` find the `<Link … LinkResourceURI="file:/abs/old.jpg" …>`
+and change the URI to the new absolute path. InDesign relinks on open (verified). If the
+new image has a different aspect ratio it keeps the old frame, so **re-fit it in
+InDesign** afterward (`frame.fit(FitOptions.FILL_PROPORTIONALLY); frame.fit(FitOptions.CENTER_CONTENT);`)
+via the `indd` skill.
+
+**Applying a paragraph style.** Styles live in `Resources/Styles.xml`
+(`<ParagraphStyle Self="ParagraphStyle/body" …>`); a story applies one via
+`AppliedParagraphStyle="ParagraphStyle/body"` on its `ParagraphStyleRange`. Creating or
+restyling paragraph styles and reflowing frames is far easier in the `indd` skill than
+by hand — do structural/layout changes there and edit text/links here.
+
 ## Verifying a repacked IDML
 
 Without launching InDesign you can confirm structural validity:
@@ -117,5 +146,11 @@ it" test.
   story). If you delete or rename objects, update every reference or InDesign
   will report a damaged file. Prefer *editing values in place* over
   adding/removing objects.
+- **Story `Self` IDs and filenames are not stable across an InDesign re-export.**
+  After a round-trip through InDesign (open → export IDML) the same story may move from
+  e.g. `Stories/Story_u101.xml` to `Story_u10f.xml`. So **locate a story by its content
+  (grep for the text), not by a remembered filename** — a hard-coded path will
+  `KeyError`/404 after a re-export (verified). `idmlutil.py unpack` always reflects the
+  current names.
 - This is a file-format tool and is **OS-independent**; only the optional
   render-verification step (via `indd`) needs macOS + InDesign.

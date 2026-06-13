@@ -55,9 +55,29 @@ end tell
 end timeout"
 ```
 
-If the file does not exist, write it first. If InDesign is not running, launching the
-`tell` block will start it (the user may need to grant Automation/Accessibility
-permission to the terminal the first time).
+If the file does not exist, write it first.
+
+**Launch InDesign *before* running the `tell` block.** AppleScript resolves the
+`do script` terminology from InDesign's scripting dictionary at *compile* time, so if
+the app is not already running the script fails to compile with a misleading
+*"Expected end of line but found "script". (-2741)"* error (it is not really a syntax
+error). Start it first and wait until it registers, then run:
+
+```bash
+open -a "Adobe InDesign 2026"
+# wait until the process is registered before sending the Apple event:
+until osascript -e 'tell application "System Events" to (name of processes) contains "Adobe InDesign 2026"' | grep -q true; do sleep 1; done
+```
+
+The first time, the user may need to grant the terminal **Automation/Accessibility**
+permission for InDesign. Note also that sending Apple events to InDesign is a
+cross-application action — if you run inside a command sandbox that blocks Apple
+events, the `osascript` call must be allowed to run outside it.
+
+**Tip — put the AppleScript in a file, not in `-e`.** Quoting the multi-line `tell`
+block through repeated `-e` flags is fragile; writing it to a `.applescript` file and
+running `osascript /path/to/run.applescript` avoids shell-quoting breakage (verified —
+the `-e` form mis-parsed, the file form worked).
 
 ## Writing ExtendScript: core idioms
 
@@ -154,6 +174,16 @@ To discover fonts, enumerate `app.fonts` and read `.name` (family⇥style), `.po
   `.appliedParagraphStyle`. Paragraph count equals the number of joined lines, so keep a
   parallel array of styles. Use **empty** entries (`''`) as placeholders for objects you
   will anchor later — they become empty paragraphs you can target by index.
+- **Make a paragraph style's font actually take effect — clear character overrides.**
+  Applying `text.appliedParagraphStyle = ps` does **not** remove existing
+  character-level formatting, so a font baked onto a run (e.g. from earlier editing or an
+  imported IDML) survives and the style's `appliedFont` appears ignored. Clear it:
+  ```javascript
+  text.appliedParagraphStyle = ps;
+  text.clearOverrides(OverrideType.CHARACTER_ONLY);   // now the style's font wins
+  ```
+  Re-apply any intentional local emphasis (bold run, etc.) *after* clearing (verified:
+  this is what made a Yu-Gothic body style override an old Hiragino run).
 - **Anchored inline image** (lands in the text flow / column):
   ```javascript
   var ip = story.paragraphs[idx].insertionPoints[0];
@@ -192,6 +222,29 @@ To discover fonts, enumerate `app.fonts` and read `.name` (family⇥style), `.po
   `doc.viewPreferences.horizontalMeasurementUnits = MeasurementUnits.POINTS` (and
   vertical), use **point numbers** for type (`pointSize`, `leading`, `spaceAfter`) and
   **unit strings** (`'15mm'`) for geometry / table sizes.
+- **`pointSize`/`leading` get silently scaled when the ruler is mm — pin the script
+  unit.** `app.scriptPreferences.measurementUnit` defaults to `AUTO_VALUE`, which
+  follows the document's ruler. If the ruler is **millimeters** and you assign a bare
+  number like `style.pointSize = 7`, InDesign interprets it through that unit and stores
+  a *different* size (observed **≈0.71×**, e.g. `7 → 4.96pt`, `5.5 → 3.90pt`). The text
+  then renders far smaller than intended. **Fix (verified):** set
+  ```javascript
+  app.scriptPreferences.measurementUnit = MeasurementUnits.POINTS;
+  ```
+  once at the top, so numeric `pointSize`/`leading` are taken as real points — even
+  while the *ruler* stays mm for geometry. This was the difference between type coming
+  out at 2.4pt vs the intended ~4–5pt.
+- **Fit text to its frame by sizing on `overflows` feedback.** To fill a fixed frame
+  with a balanced margin (instead of guessing a size), grow the point size until the
+  frame just overflows, then back off a notch — calling `doc.recompose()` after each
+  change so `overflows` reflects the new layout:
+  ```javascript
+  var sz = style.pointSize, g = 0;
+  doc.recompose();
+  while (!tf.overflows && sz < 60 && g++ < 400){ sz += 0.25; style.pointSize = sz; style.leading = sz*1.4; doc.recompose(); }
+  while ( tf.overflows && sz > 2  && g++ < 400){ sz -= 0.25; style.pointSize = sz; style.leading = sz*1.4; doc.recompose(); }
+  sz -= 0.5; style.pointSize = sz; style.leading = sz*1.4;   // small bottom margin
+  ```
 - **Check for hidden overset text** after filling a fixed frame: `tf.overflows` (boolean).
   If `true`, shrink the font, enlarge the frame, or thread to more frames/pages.
 
