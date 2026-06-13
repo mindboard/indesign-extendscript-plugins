@@ -108,8 +108,9 @@ via the `indd` skill.
 **Applying a paragraph style.** Styles live in `Resources/Styles.xml`
 (`<ParagraphStyle Self="ParagraphStyle/body" …>`); a story applies one via
 `AppliedParagraphStyle="ParagraphStyle/body"` on its `ParagraphStyleRange`. Creating or
-restyling paragraph styles and reflowing frames is far easier in the `indd` skill than
-by hand — do structural/layout changes there and edit text/links here.
+restyling paragraph styles, reflowing frames, and **building tables** (`<Table>`/`<Cell>`
+markup is extremely verbose to hand-author) are far easier in the `indd` skill than by
+hand — do structural/layout changes there and edit text/links here.
 
 ## Verifying a repacked IDML
 

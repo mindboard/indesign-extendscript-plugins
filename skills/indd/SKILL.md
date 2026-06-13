@@ -138,6 +138,12 @@ on how InDesign reads the file. The robust rule, verified building a Japanese do
 2. **Read non-ASCII *content* from UTF-8 files at runtime** with the Adobe `File` API
    (`file.encoding = 'UTF-8'; file.open('r'); file.read()`). Assigning that read-in
    string to `frame.contents` / `cell.contents` renders correctly.
+   - **Data-driven CJK (tables etc.):** do the *formatting* (joining arrays, currency,
+     labels) in a non-JSX language and write a UTF-8 file of ready-to-render strings,
+     then have the `.jsx` just read the pairs. E.g. Python turns
+     `mentai-ficelle.json` into `{"rows":[["価格","¥380（税込）"], …]}`; the script
+     `eval('(' + read + ')')`s it and fills cells. Keeps every Japanese byte out of the
+     `.jsx` source (verified building the spec table).
 3. **Reference fonts by their ASCII PostScript name**, not by their Japanese display
    name. Look up the `Font` object and assign it:
    ```javascript
@@ -218,6 +224,38 @@ To discover fonts, enumerate `app.fonts` and read `.name` (family⇥style), `.po
   A **`Table` has no `.texts`** — style cells individually via
   `table.cells.item(k).texts[0].properties = {...}` (or loop `table.cells`). Set insets
   with `cell.properties = { topInset:1.5, ... }`.
+- **Standalone (placed) table** — to drop a table into a specific spot (e.g. a card's
+  bottom strip), make a text frame and add the table at *its* insertion point:
+  ```javascript
+  var tf = page.textFrames.add();
+  tf.geometricBounds = ['17mm','1.5mm','29mm','38.5mm'];
+  tf.textFramePreferences.insetSpacing = [0,0,0,0];
+  var tbl = tf.insertionPoints[0].tables.add({ bodyRowCount:n, columnCount:2, headerRowCount:0 });
+  ```
+- **Per-column width:** `tbl.columns.item(0).width = '9mm';` (set each; they should sum to
+  the table width). Fill cells with `tbl.rows.item(i).cells.item(j).contents = '...';`.
+- **Merge cells to span** (e.g. a full-width footnote row): `row.cells.item(0).merge(row.cells.item(1));`
+  — after the merge the row has **one** cell; set its `.contents` *after* merging.
+- **Cell shading + hairline grid** (all verified property names): fill a cell with
+  `cell.fillColor = swatch;` and set borders per edge —
+  `cell.topEdgeStrokeWeight = 0.25; cell.topEdgeStrokeColor = lineSwatch;` (likewise
+  `bottomEdge…`, `leftEdge…`, `rightEdge…`). Tighten padding with
+  `cell.leftInset/rightInset/topInset/bottomInset`.
+- **Auto-fit a fixed-size table** (sibling of the text-frame fit loop): a table can
+  overflow its frame *and* individual cells can overset. Shrink the whole table's font
+  until neither happens, recomposing each step:
+  ```javascript
+  function anyOverset(){
+      if (tf.overflows) return true;
+      for (var k=0;k<tbl.cells.length;k++){ if (tbl.cells.item(k).overflows) return true; }
+      return false;
+  }
+  var sz = 3.4;                          // applyFont(sz) sets every cell's pointSize/leading
+  applyFont(sz); doc.recompose();
+  while (anyOverset() && sz > 1.8){ sz -= 0.1; applyFont(sz); doc.recompose(); }
+  ```
+  (Verified: packed a 7-row spec/allergen table into a 40×30mm card's bottom strip this
+  way, settling at ~3.4pt with no overset.)
 - **Measurement units:** to avoid ambiguity, set
   `doc.viewPreferences.horizontalMeasurementUnits = MeasurementUnits.POINTS` (and
   vertical), use **point numbers** for type (`pointSize`, `leading`, `spaceAfter`) and
