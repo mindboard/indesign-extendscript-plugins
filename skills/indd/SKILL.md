@@ -165,6 +165,61 @@ Japanese fonts confirmed available on this macOS + InDesign 2026 (PostScript nam
 To discover fonts, enumerate `app.fonts` and read `.name` (family⇥style), `.postscriptName`,
 `.fontFamily`, `.fontStyleName` (wrap the run in `with timeout`, the list is large).
 
+## Vertical Japanese text (縦書き / `vertical-rl`)
+
+Vertical writing is set **per story** through `storyPreferences.storyOrientation` —
+**not** `storyDirection`. Confusing the two is the single biggest time-sink here; they
+are *different axes*:
+
+- **`storyOrientation`** = the writing **axis**: `HorizontalOrVertical.HORIZONTAL`
+  (default) vs `HorizontalOrVertical.VERTICAL` (縦書き). This is what makes text run
+  top-to-bottom. The enum object is `HorizontalOrVertical` (alias
+  `StoryHorizontalOrVertical`), members `HORIZONTAL` / `VERTICAL`.
+- **`storyDirection`** = the **bidi** reading direction (for Hebrew/Arabic), enum
+  `StoryDirectionOptions` with *only* `LEFT_TO_RIGHT_DIRECTION`,
+  `RIGHT_TO_LEFT_DIRECTION`, `UNKNOWN_DIRECTION`. **It has no top-to-bottom value** —
+  `StoryDirectionOptions.TOP_TO_BOTTOM_DIRECTION` does not exist and throws *"Object does
+  not support the property or method … (55)"*. For Japanese 縦書き leave `storyDirection`
+  at its default (`LeftToRightDirection`); the right-to-left **column** flow comes for
+  free from vertical orientation.
+
+```javascript
+// make a frame's text vertical — set it on the frame's STORY, not the frame
+tf.parentStory.storyPreferences.storyOrientation = HorizontalOrVertical.VERTICAL;
+doc.recompose();
+```
+
+- **Set it on the story.** Each unthreaded frame is its own story, so set
+  `frame.parentStory.storyPreferences.storyOrientation` on *every* frame you want
+  vertical. To make new frames inherit it, flip the document default
+  `doc.storyPreferences.storyOrientation` *before* creating them.
+- **Assign the named enum, not a bare integer.** `storyDirection = 2` (or any int) throws
+  *"値が無効です … 値 2 を受け取りました"*. (The value is stored as a 4-char code —
+  `storyOrientation` reads back `1752134266` = `"horz"` or `1986359924` = `"vert"` — but
+  always write the enum, e.g. `HorizontalOrVertical.VERTICAL`.)
+- **`vertical-rl` falls out for free.** In a vertical story a single-column frame
+  (`textColumnCount:1`) runs each line top→bottom and wraps the next line to the **left** —
+  i.e. native right-to-left column order; no RTL flag needed. For a band of running
+  vertical text use a **wide, short** frame: it yields many vertical lines reading
+  right-to-left. A **vertical title down the right edge** is just a **tall, narrow**
+  vertical frame at the right of the page. (Verified building `pokemon_b.indd`: vertical
+  title on the right edge; three stacked wide/short bands of right-to-left vertical body
+  text; images on the left.)
+- **Headings inside vertical text:** prefer
+  `psHeading.spanColumnType = SpanColumnTypeOptions.SINGLE_COLUMN` so a heading sits
+  inline as a vertical run — `SPAN_COLUMNS` makes it span the vertical *height* and reads
+  oddly.
+- **Finding the right property/enum (reusable technique).** When a guessed name throws
+  (55), reflect instead of guessing again: `tf.parentStory.storyPreferences.reflect.properties`
+  listed both `storyOrientation` and `storyDirection` (revealing they are separate), and
+  `SomeEnum.reflect.properties` lists an enum's valid members. Reading the current value
+  (the 4-char int) then probing candidate enum names (`eval('HorizontalOrVertical')`…)
+  confirmed `VERTICAL`. This reflect-first loop is the fastest way out of "name throws 55".
+- **Verify vertical output visually:** export PNG and read it back (see below). A
+  **center crop** is usually enough to confirm right-to-left order and that headings are
+  vertical — note `sips -c H W` crops **centered** (its `--cropOffset` is unreliable) and
+  `PIL`/ImageMagick may be absent, so don't rely on cropping an exact top-left region.
+
 ## Layout building blocks (verified)
 
 - **Multi-column text frame:**
@@ -387,6 +442,17 @@ against a running Adobe InDesign 2026 on macOS.
   ```
 - **Open a specific InDesign file:** `var doc = app.open(new File('/abs/file.indd'));`
   Works for `.indd` and `.idml`. The opened doc becomes the active document.
+- **A crashed/aborted run leaves the doc open *and modified* in memory — reopen returns
+  the dirty copy.** When an earlier script dies mid-way, the document stays open with its
+  half-built state; a later `app.open(samePath)` hands back that **in-memory dirty copy**,
+  *not* the clean file on disk. During iterative builds this silently feeds you partial
+  state (observed: a re-harvest read **1 paragraph instead of 15** because a prior run had
+  already cleared the page before crashing). **Start every rebuild by discarding open
+  copies, then open fresh:**
+  ```javascript
+  while (app.documents.length>0){ app.documents[0].close(SaveOptions.NO); }
+  var doc = app.open(new File('/abs/base.indd'));
+  ```
 - **Save to a specific path:** `doc.save(new File('/abs/out.indd'));`
 - **Close:** `doc.close(SaveOptions.NO);` (or `SaveOptions.YES` to write changes first).
 
@@ -452,6 +518,25 @@ Categories of bundled examples (prefix = rough grouping):
   `logs.join('\n')`.
 - ExtendScript errors surface in `osascript` stderr / the return string; if output is
   empty or an error, check that a document is open and the InDesign version matches.
+- **Wrap a build script in try/catch and return the error — on an uncaught throw
+  `osascript` returns *nothing useful*.** A failure surfaces only as a generic
+  `execution error` with no logs and no checkpoint output, so you can't see how far it
+  got. Wrap the body and log the message *with its line number*, then end as usual:
+  ```javascript
+  try { /* ... build ... */ }
+  catch(err){ console.log('ERROR: ' + err + ' @line ' + err.line); }
+  logs.join('\n');
+  ```
+  `err.line` alone usually pinpoints the failing statement (this is how the `storyDirection`
+  and `'mm'`-arithmetic errors below were located).
+- **Don't do arithmetic on `'NNmm'` measurement strings.** `'190mm'` is just a string, so
+  `'190mm' + 0.5` yields the invalid `'190mm0.5'`, which InDesign rejects with *"要求された
+  種類に関する利用可能なデータはありません / there is no data available for the requested
+  type"*. Compute in plain numbers and append the unit last: `(190 + 0.5) + 'mm'`. A handy
+  helper is `function mm(n){ return n + 'mm'; }` with all bounds math done numerically.
+- **`Rectangle` has no `cornerRadius` property** (throws *55*); corner rounding lives on
+  the per-corner option/radius family (`topLeftCornerOption` + `topLeftCornerRadius`, …),
+  or just omit it.
 - Use absolute paths everywhere (script file, image/PDF inputs, export outputs).
 - **Do not write InDesign export/output files into `/tmp`.** On macOS `/tmp` is a
   symlink to `/private/tmp`, and InDesign's `File` export fails with *"Folder … not

@@ -126,6 +126,24 @@ restyling paragraph styles, reflowing frames, and **building tables** (`<Table>`
 markup is extremely verbose to hand-author) are far easier in the `indd` skill than by
 hand — do structural/layout changes there and edit text/links here.
 
+**Vertical Japanese text (縦書き / `vertical-rl`).** The writing axis is a **per-story**
+attribute on the `<StoryPreference>` element inside each `Stories/Story_*.xml`. Set
+`StoryOrientation="Vertical"` (the default is `"Horizontal"`) to turn that story 縦書き:
+
+```xml
+<StoryPreference … StoryOrientation="Vertical" StoryDirection="LeftToRightDirection" />
+```
+
+The neighbouring `StoryDirection` is the **bidi** axis (LTR/RTL for Hebrew/Arabic) and
+stays `LeftToRightDirection` — it does **not** control vertical vs horizontal, so don't
+touch it for Japanese. Orientation only changes how text flows *inside* the frame; frame
+geometry/position in `Spreads/Spread_*.xml` is unaffected, and `vertical-rl`'s
+right-to-left column order is implied by the vertical orientation (no extra attribute).
+Each frame's story carries its own setting, so flip it on **every** story you want
+vertical. (Verified: round-tripping the vertical `pokemon_b.idml` shows
+`StoryOrientation="Vertical" StoryDirection="LeftToRightDirection"` on every vertical
+story.)
+
 ## Verifying a repacked IDML
 
 Without launching InDesign you can confirm structural validity:
