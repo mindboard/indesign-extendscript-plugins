@@ -92,8 +92,8 @@ inherits formatting (verified: grew a 3-line body to 4 lines this way).
 `CharacterStyleRange` elements and give the emphasised one a different `FontStyle`
 (e.g. `FontStyle="Bold"` / `"W6"`), keeping the same `<AppliedFont>`:
 ```xml
-<CharacterStyleRange ... FontStyle="W3"><Content>ポンシェは</Content></CharacterStyleRange>
-<CharacterStyleRange ... FontStyle="Bold"><Content>博多「ふくや」の明太子</Content></CharacterStyleRange>
+<CharacterStyleRange ... FontStyle="W3"><Content>当店は</Content></CharacterStyleRange>
+<CharacterStyleRange ... FontStyle="Bold"><Content>港町「海の家」の干物</Content></CharacterStyleRange>
 <CharacterStyleRange ... FontStyle="W3"><Content>を使用。</Content></CharacterStyleRange>
 ```
 (Verified: rendered the middle run bold within the same family.)
